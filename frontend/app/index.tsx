@@ -1,95 +1,125 @@
 import * as React from 'react';
-import { View } from 'react-native';
-import Animated, { FadeInUp, FadeOutDown, LayoutAnimationConfig } from 'react-native-reanimated';
-import { Info } from '~/lib/icons/Info';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Button } from '~/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
-import { Progress } from '~/components/ui/progress';
-import { Text } from '~/components/ui/text';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { View, SafeAreaView } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Pressable } from 'react-native';
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from '~/components/ui/navigation-menu';
+import { User } from '~/lib/icons/User';
+import { Home } from '~/lib/icons/Home';
+import { Search } from '~/lib/icons/Search';
+import { Calendar } from '~/lib/icons/Calendar';
+import { MessageCircle } from '~/lib/icons/MessageCircle';
+import ProfileScreen from './profile';
+import HomePage from './home';
+import CalendarScreen from './calendar';
+import ChatScreen from './chat';
+import ErrorBoundary from './error-boundary';
+import type { NavigationValue, AnimatedNavIconProps } from './types';
 
-const GITHUB_AVATAR_URI =
-  'https://i.pinimg.com/originals/ef/a2/8d/efa28d18a04e7fa40ed49eeb0ab660db.jpg';
+// Animated wrapper for navbar icons
+function AnimatedNavIcon({ children, onPress }: AnimatedNavIconProps) {
+  const scale = useSharedValue(1);
+  const rotate = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotate.value}deg` },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPressIn={() => {
+        scale.value = withSpring(1.08, { damping: 10 });
+        rotate.value = withSpring(5, { damping: 10 });
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, { damping: 12 });
+        rotate.value = withSpring(0, { damping: 12 });
+      }}
+      onPress={onPress}
+      accessibilityRole="button"
+    >
+      <Animated.View style={animatedStyle}>{children}</Animated.View>
+    </Pressable>
+  );
+}
+
+function MainScreen() {
+  const [navValue, setNavValue] = React.useState<NavigationValue>('home');
+
+  const handleNavigation = (value: NavigationValue) => {
+    setNavValue(value);
+  };
+
+  const renderCurrentScreen = () => {
+    switch (navValue) {
+      case 'profile':
+        return <ProfileScreen />;
+      case 'calendar':
+        return <CalendarScreen />;
+      case 'chat':
+        return <ChatScreen />;
+      case 'home':
+      default:
+        return <HomePage />;
+    }
+  };
+
+  return (
+    <View className='flex-1'>
+      {renderCurrentScreen()}
+      {/* Rounded Navbar absolutely at the bottom */}
+      <View className='absolute left-0 right-0 bottom-0 w-full px-4 items-center'>
+        <NavigationMenu
+          className='rounded-full bg-background/80 border border-border shadow-md w-full max-w-xl py-4 flex-row items-center'
+          value={navValue}
+          onValueChange={(value) => {
+            if (value && value !== 'search') {
+              handleNavigation(value as NavigationValue);
+            }
+          }}
+        >
+          <NavigationMenuList className='flex-row items-center'>
+            <NavigationMenuItem value='home'>
+              <AnimatedNavIcon onPress={() => handleNavigation('home')}>
+                <Home className={navValue === 'home' ? 'text-primary' : 'text-muted-foreground'} size={32} strokeWidth={1} />
+              </AnimatedNavIcon>
+            </NavigationMenuItem>
+            <View className='h-10 w-1 bg-border mx-4 rounded-full' />
+            <NavigationMenuItem value='search'>
+              <AnimatedNavIcon>
+                <Search className={navValue === 'search' ? 'text-primary' : 'text-muted-foreground'} size={32} strokeWidth={1} />
+              </AnimatedNavIcon>
+            </NavigationMenuItem>
+            <View className='h-10 w-1 bg-border mx-4 rounded-full' />
+            <NavigationMenuItem value='calendar'>
+              <AnimatedNavIcon onPress={() => handleNavigation('calendar')}>
+                <Calendar className={navValue === 'calendar' ? 'text-primary' : 'text-muted-foreground'} size={32} strokeWidth={1} />
+              </AnimatedNavIcon>
+            </NavigationMenuItem>
+            <View className='h-10 w-1 bg-border mx-4 rounded-full' />
+            <NavigationMenuItem value='chat'>
+              <AnimatedNavIcon onPress={() => handleNavigation('chat')}>
+                <MessageCircle className={navValue === 'chat' ? 'text-primary' : 'text-muted-foreground'} size={32} strokeWidth={1} />
+              </AnimatedNavIcon>
+            </NavigationMenuItem>
+            <View className='h-10 w-1 bg-border mx-4 rounded-full' />
+            <NavigationMenuItem value='profile'>
+              <AnimatedNavIcon onPress={() => handleNavigation('profile')}>
+                <User className={navValue === 'profile' ? 'text-primary' : 'text-muted-foreground'} size={32} strokeWidth={1} />
+              </AnimatedNavIcon>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </View>
+    </View>
+  );
+}
 
 export default function Screen() {
-  const [progress, setProgress] = React.useState(78);
-
-  function updateProgressValue() {
-    setProgress(Math.floor(Math.random() * 100));
-  }
   return (
-    <View className='flex-1 justify-center items-center gap-5 p-6 bg-secondary/30'>
-      <Card className='w-full max-w-sm p-6 rounded-2xl'>
-        <CardHeader className='items-center'>
-          <Avatar alt="Rick Sanchez's Avatar" className='w-24 h-24'>
-            <AvatarImage source={{ uri: GITHUB_AVATAR_URI }} />
-            <AvatarFallback>
-              <Text>RS</Text>
-            </AvatarFallback>
-          </Avatar>
-          <View className='p-3' />
-          <CardTitle className='pb-2 text-center'>Rick Sanchez</CardTitle>
-          <View className='flex-row'>
-            <CardDescription className='text-base font-semibold'>Scientist</CardDescription>
-            <Tooltip delayDuration={150}>
-              <TooltipTrigger className='px-2 pb-0.5 active:opacity-50'>
-                <Info size={14} strokeWidth={2.5} className='w-4 h-4 text-foreground/70' />
-              </TooltipTrigger>
-              <TooltipContent className='py-2 px-4 shadow'>
-                <Text className='native:text-lg'>Freelance</Text>
-              </TooltipContent>
-            </Tooltip>
-          </View>
-        </CardHeader>
-        <CardContent>
-          <View className='flex-row justify-around gap-3'>
-            <View className='items-center'>
-              <Text className='text-sm text-muted-foreground'>Dimension</Text>
-              <Text className='text-xl font-semibold'>C-137</Text>
-            </View>
-            <View className='items-center'>
-              <Text className='text-sm text-muted-foreground'>Age</Text>
-              <Text className='text-xl font-semibold'>70</Text>
-            </View>
-            <View className='items-center'>
-              <Text className='text-sm text-muted-foreground'>Species</Text>
-              <Text className='text-xl font-semibold'>Human</Text>
-            </View>
-          </View>
-        </CardContent>
-        <CardFooter className='flex-col gap-3 pb-0'>
-          <View className='flex-row items-center overflow-hidden'>
-            <Text className='text-sm text-muted-foreground'>Productivity:</Text>
-            <LayoutAnimationConfig skipEntering>
-              <Animated.View
-                key={progress}
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                className='w-11 items-center'
-              >
-                <Text className='text-sm font-bold text-sky-600'>{progress}%</Text>
-              </Animated.View>
-            </LayoutAnimationConfig>
-          </View>
-          <Progress value={progress} className='h-2' indicatorClassName='bg-sky-600' />
-          <View />
-          <Button
-            variant='outline'
-            className='shadow shadow-foreground/5'
-            onPress={updateProgressValue}
-          >
-            <Text>Update</Text>
-          </Button>
-        </CardFooter>
-      </Card>
-    </View>
+    <SafeAreaView className="flex-1 relative bg-secondary/30">
+      <MainScreen />
+    </SafeAreaView>
   );
 }

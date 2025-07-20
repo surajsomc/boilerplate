@@ -13,6 +13,6 @@ export const NAV_THEME = {
     card: 'hsl(240 10% 3.9%)', // card
     notification: 'hsl(0 72% 51%)', // destructive
     primary: 'hsl(0 0% 98%)', // primary
-    text: 'hsl(0 0% 98%)', // foreground
+    text: 'hsl(240 5% 70%)', // foreground (softer grey for dark mode)
   },
 };
