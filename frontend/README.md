@@ -15,7 +15,7 @@ This is a React Native application built with Expo and NativeWind, following mod
 
 ## Best Practices Implemented
 
-### 1. TypeScript
+### 1. TypeScript 
 - Strict type checking enabled
 - Proper interface definitions for all components
 - Shared types in `app/types.ts`
