@@ -97,7 +97,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   return (
     <>
-      <View style={{ position: 'absolute', width: '100%', left: 0, right: 0, bottom: 112, alignItems: 'center', zIndex: 10 }} pointerEvents="none">
+      <View style={{ position: 'absolute', width: '100%', left: 0, right: 0, bottom: 110, alignItems: 'center', zIndex: 10 }} pointerEvents="none">
         <Animated.View
           style={{
             backgroundColor: '#18181b',

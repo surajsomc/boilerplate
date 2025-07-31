@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text as RNText, StyleSheet, Dimensions, FlatList } from 'react-native';
+import { View, Text as RNText, StyleSheet, Dimensions, FlatList, ImageBackground, Pressable } from 'react-native';
 import { Card } from '../components/ui/card';
 import { Utensils } from '../lib/icons/Utensils';
 import { Dumbbell } from '../lib/icons/Dumbbell';
@@ -8,7 +8,6 @@ import { Briefcase } from '../lib/icons/Briefcase';
 import { Plane } from '../lib/icons/Plane';
 import { MessageCircle } from '../lib/icons/MessageCircle';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { Pressable } from 'react-native';
 import { useColorScheme } from '../lib/useColorScheme';
 import { NAV_THEME } from '../lib/constants';
 import { useRef, useEffect } from 'react';
@@ -152,6 +151,7 @@ export default function HomeScreen() {
   const { colorScheme } = useColorScheme();
   const theme = NAV_THEME[colorScheme];
   const flatListRef = useRef<FlatList<any>>(null);
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
   // Create a long list for infinite effect
   const infiniteIcons = Array(10).fill(funIcons).flat();
@@ -180,40 +180,54 @@ export default function HomeScreen() {
     return () => { if (scroller) clearTimeout(scroller); };
   }, []);
 
+  const handleNextImage = () => {
+    setCurrentImageIndex(i => (i + 1) % gymGirlImages.length);
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 112 }}>
-      <View style={styles.welcomeContainer}>
-        <RNText style={[
-          styles.welcomeText,
-          { color: theme.text, fontFamily: 'CormorantGaramond-Regular' }
-        ]}>
-          Welcome back <RNText style={[
-            styles.surajText,
-            { color: theme.primary, fontFamily: 'CormorantGaramond-Bold' }
-          ]}>Suraj!</RNText>
-        </RNText>
-      </View>
-      <TapThroughCarousel />
-      <FlatList
-        ref={flatListRef}
-        data={infiniteIcons}
-        keyExtractor={(_, idx) => String(idx)}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 24, marginTop: 0, marginBottom: 10 }}
-        ItemSeparatorComponent={() => <View style={{ width: 28 }} />}
-        renderItem={({ item: { Icon, label } }) => (
-          <View style={styles.iconCol}>
-            <Icon size={32} color={colorScheme === 'dark' ? '#fbbf24' : '#eab308'} style={{ marginBottom: 2 }} />
-            <RNText style={[styles.iconLabel, { color: colorScheme === 'dark' ? '#d4d4d8' : '#52525b' }]}>{label}</RNText>
+    <ImageBackground
+      source={{ uri: gymGirlImages[currentImageIndex] }}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <Pressable onPress={handleNextImage} style={{ flex: 1 }}>
+        <View style={{ 
+          flex: 1, 
+          backgroundColor: 'transparent', 
+          alignItems: 'center', 
+          justifyContent: 'flex-start', 
+          paddingTop: 112 
+        }}>
+          <View style={styles.welcomeContainer}>
+            <RNText style={[
+              styles.welcomeText,
+              { color: '#fff', fontFamily: 'CormorantGaramond-Regular', textShadowColor: 'rgba(0, 0, 0, 0.8)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }
+            ]}>
+              Welcome back <RNText style={[
+                styles.surajText,
+                { color: '#fff', fontFamily: 'CormorantGaramond-Bold', textShadowColor: 'rgba(0, 0, 0, 0.8)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }
+              ]}>Suraj!</RNText>
+            </RNText>
           </View>
-        )}
-        scrollEnabled={false}
-      />
-      <RNText style={{ textAlign: 'center', fontSize: 16, marginTop: 10, marginBottom: 0 }}>
-        {quoteOfTheDay.text} — {quoteOfTheDay.author}
-      </RNText>
-      {/* Test component for dark mode */}
-    </View>
+          
+          <FlatList
+            ref={flatListRef}
+            data={infiniteIcons}
+            keyExtractor={(_, idx) => String(idx)}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 24, marginTop: 0, marginBottom: 40 }}
+            ItemSeparatorComponent={() => <View style={{ width: 28 }} />}
+            renderItem={({ item: { Icon, label } }) => (
+              <View style={styles.iconCol}>
+                <Icon size={32} color={colorScheme === 'dark' ? '#fbbf24' : '#eab308'} style={{ marginBottom: 2 }} />
+                <RNText style={[styles.iconLabel, { color: '#fff', textShadowColor: 'rgba(0, 0, 0, 0.8)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }]}>{label}</RNText>
+              </View>
+            )}
+            scrollEnabled={false}
+          />
+        </View>
+      </Pressable>
+    </ImageBackground>
   );
 } 
