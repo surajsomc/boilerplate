@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile API Test UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Profile API Test UI</h1>
+            <p>Test your backend API endpoints with this simple interface</p>
+        </header>
+
+        <div class="status-bar">
+            <div id="server-status" class="status offline">
+                <span class="status-dot"></span>
+                <span class="status-text">Server: Checking...</span>
+                <button id="refresh-server-status" class="small" style="margin-left: 10px; padding: 4px 8px; font-size: 10px;">🔄</button>
+            </div>
+            <div id="auth-status" class="status">
+                <span class="status-dot"></span>
+                <span class="status-text">Auth: Not logged in</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Authentication Section -->
+            <section class="test-section">
+                <h2>🔐 Authentication</h2>
+                
+                <div class="form-group">
+                    <h3>Register User</h3>
+                    <form id="register-form">
+                        <input type="text" id="reg-username" placeholder="Username" required>
+                        <input type="email" id="reg-email" placeholder="Email" required>
+                        <input type="password" id="reg-password" placeholder="Password" required>
+                        <button type="submit">Register</button>
+                    </form>
+                </div>
+
+                <div class="form-group">
+                    <h3>Login</h3>
+                    <form id="login-form">
+                        <input type="text" id="login-username" placeholder="Username or Email" required>
+                        <input type="password" id="login-password" placeholder="Password" required>
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+
+                <div class="form-group">
+                    <h3>Current User</h3>
+                    <button id="get-user-btn">Get Current User</button>
+                    <button id="logout-btn" class="secondary">Logout</button>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section class="test-section">
+                <h2>👤 Profile Management</h2>
+                
+                <div class="form-group">
+                    <h3>Create Profile</h3>
+                    <form id="create-profile-form">
+                        <input type="text" id="profile-name" placeholder="Name">
+                        <textarea id="profile-bio" placeholder="Bio"></textarea>
+                        <input type="text" id="profile-location" placeholder="Location">
+                        <input type="text" id="profile-interests" placeholder="Interests">
+                        <input type="text" id="profile-skills" placeholder="Skills">
+                        <textarea id="profile-experience" placeholder="Experience"></textarea>
+                        <input type="text" id="profile-education" placeholder="Education">
+                        <input type="text" id="profile-social" placeholder="Social Links">
+                        <textarea id="profile-projects" placeholder="Projects"></textarea>
+                        <button type="submit">Create Profile</button>
+                    </form>
+                </div>
+
+                <div class="form-group">
+                    <h3>Profile Actions</h3>
+                    <button id="get-profile-btn">Get My Profile</button>
+                    <button id="update-profile-btn">Update Profile</button>
+                    <button id="delete-profile-btn" class="danger">Delete Profile</button>
+                </div>
+
+                <div class="form-group">
+                    <h3>Search Profiles</h3>
+                    <div class="search-group">
+                        <input type="text" id="search-query" placeholder="Search query">
+                        <button id="search-btn">Search</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Upload Section -->
+            <section class="test-section">
+                <h2>📁 File Upload</h2>
+                
+                <div class="form-group">
+                    <h3>Upload Profile Picture</h3>
+                    <form id="upload-form">
+                        <input type="file" id="profile-image" accept="image/*" required>
+                        <button type="submit">Upload Image</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Response Section -->
+            <section class="test-section">
+                <h2>📤 API Response</h2>
+                <div class="response-container">
+                    <div class="response-header">
+                        <span>Response:</span>
+                        <button id="clear-response" class="small">Clear</button>
+                    </div>
+                    <pre id="response-area">No requests made yet...</pre>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
