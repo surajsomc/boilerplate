@@ -91,3 +91,4 @@ app/
 - Use React.memo for expensive components
 - Follow the established component patterns
 - Keep components focused and single-purpose
+
