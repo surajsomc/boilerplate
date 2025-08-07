@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, Alert, TextInput, Modal, Dimensions } from 'react-native';
 import { useColorScheme } from '../lib/useColorScheme';
-import { NAV_THEME } from '../lib/constants';
+import { NAV_THEME, COLORS } from '../lib/constants';
 import { useAuth } from '../contexts/AuthContext';
 import { Profile } from '../services/api';
 
+const { width } = Dimensions.get('window');
 const DEFAULT_PROFILE_PIC = 'https://randomuser.me/api/portraits/men/32.jpg';
 
 export default function ProfileScreen() {
@@ -47,10 +48,10 @@ export default function ProfileScreen() {
   const renderInfoSection = (label: string, value: string, key: keyof Profile) => {
     if (isEditing) {
       return (
-        <View style={[styles.infoSection, { backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }]}>
-          <Text style={[styles.label, { color: colorScheme === 'dark' ? '#a1a1aa' : '#71717a' }]}>{label}</Text>
+        <View style={[styles.infoSection, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
           <TextInput
-            style={[styles.editInput, { color: theme.text, backgroundColor: theme.card }]}
+            style={[styles.editInput, { color: theme.text, backgroundColor: theme.background }]}
             value={editData[key] as string}
             onChangeText={(text) => setEditData(prev => ({ ...prev, [key]: text }))}
             multiline
@@ -62,8 +63,8 @@ export default function ProfileScreen() {
     }
 
     return (
-      <View style={[styles.infoSection, { backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }]}>
-        <Text style={[styles.label, { color: colorScheme === 'dark' ? '#a1a1aa' : '#71717a' }]}>{label}</Text>
+      <View style={[styles.infoSection, { backgroundColor: theme.card, borderColor: theme.border }]}>
+        <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
         <Text style={[styles.infoText, { color: theme.text }]}>
           {value || `No ${label.toLowerCase()} added yet`}
         </Text>
@@ -82,26 +83,30 @@ export default function ProfileScreen() {
   return (
     <>
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: 128, backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
-        <View style={styles.profilePicContainer}>
-          <Image 
-            source={{ uri: profile?.profilePicture || DEFAULT_PROFILE_PIC }} 
-            style={[styles.profilePic, { backgroundColor: colorScheme === 'dark' ? '#27272a' : '#e5e7eb', borderColor: theme.card }]} 
-          />
+        {/* Profile Header */}
+        <View style={styles.profileHeader}>
+          <View style={styles.profilePicContainer}>
+            <Image 
+              source={{ uri: profile?.profilePicture || DEFAULT_PROFILE_PIC }} 
+              style={[styles.profilePic, { backgroundColor: theme.card, borderColor: theme.card }]} 
+            />
+          </View>
+
+          <Text style={[styles.name, { color: theme.text }]}>
+            {profile?.firstName && profile?.lastName 
+              ? `${profile.firstName} ${profile.lastName}`
+              : user.username
+            }
+          </Text>
+
+          {profile?.bio && (
+            <Text style={[styles.bio, { color: theme.textSecondary }]}>
+              {profile.bio}
+            </Text>
+          )}
         </View>
 
-        <Text style={[styles.name, { color: theme.text }]}>
-          {profile?.firstName && profile?.lastName 
-            ? `${profile.firstName} ${profile.lastName}`
-            : user.username
-          }
-        </Text>
-
-        {profile?.bio && (
-          <Text style={[styles.bio, { color: theme.textSecondary }]}>
-            {profile.bio}
-          </Text>
-        )}
-
+        {/* Profile Information */}
         <View style={styles.infoContainer}>
           {renderInfoSection('Location', profile?.location || '', 'location')}
           {renderInfoSection('Interests', profile?.interests || '', 'interests')}
@@ -112,27 +117,31 @@ export default function ProfileScreen() {
           {renderInfoSection('Projects', profile?.projects || '', 'projects')}
         </View>
 
+        {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           {!isEditing ? (
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: theme.primary }]}
+              style={[styles.primaryButton, { backgroundColor: theme.primary }]}
               onPress={() => setIsEditing(true)}
+              activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Edit Profile</Text>
+              <Text style={[styles.primaryButtonText, { color: theme.background }]}>Edit Profile</Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.editButtons}>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: theme.primary }]}
+                style={[styles.primaryButton, { backgroundColor: theme.primary, flex: 1, marginRight: 8 }]}
                 onPress={handleSave}
+                activeOpacity={0.8}
               >
-                <Text style={styles.buttonText}>Save Changes</Text>
+                <Text style={[styles.primaryButtonText, { color: theme.background }]}>Save Changes</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: 'transparent', borderColor: theme.border }]}
+                style={[styles.secondaryButton, { borderColor: theme.border, flex: 1, marginLeft: 8 }]}
                 onPress={() => setIsEditing(false)}
+                activeOpacity={0.7}
               >
-                <Text style={[styles.buttonText, { color: theme.text }]}>Cancel</Text>
+                <Text style={[styles.secondaryButtonText, { color: theme.text }]}>Cancel</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -153,7 +162,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
           
-          <ScrollView style={styles.modalContent}>
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
             {Object.entries(editData).map(([key, value]) => (
               <View key={key} style={styles.modalInputContainer}>
                 <Text style={[styles.modalLabel, { color: theme.textSecondary }]}>
@@ -179,8 +188,9 @@ export default function ProfileScreen() {
             <TouchableOpacity
               style={[styles.modalButton, { backgroundColor: theme.primary }]}
               onPress={handleSave}
+              activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Save Changes</Text>
+              <Text style={[styles.primaryButtonText, { color: theme.background }]}>Save Changes</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -197,80 +207,120 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     backgroundColor: 'transparent',
   },
+  profileHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
   profilePicContainer: {
-    marginBottom: 18,
-    borderRadius: 64,
+    marginBottom: 20,
+    borderRadius: 80,
     overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: '#fff',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
+    borderWidth: 4,
+    borderColor: COLORS.white,
+    elevation: 8,
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
   },
   profilePic: {
-    width: 128,
-    height: 128,
-    borderRadius: 64,
-    backgroundColor: '#e5e7eb',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: COLORS.gray[100],
   },
   name: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#fff',
     fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
+    marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: -0.5,
   },
-  email: {
+  bio: {
     fontSize: 16,
-    color: '#d4d4d8',
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 18,
+    marginBottom: 8,
     textAlign: 'center',
+    paddingHorizontal: 20,
+    fontFamily: 'Poppins-Regular',
+    lineHeight: 24,
+  },
+  infoContainer: {
+    width: '100%',
+    marginBottom: 32,
   },
   infoSection: {
     width: '100%',
-    marginBottom: 18,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderRadius: 12,
-    padding: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   label: {
-    fontSize: 15,
-    color: '#a1a1aa',
+    fontSize: 14,
     fontFamily: 'Poppins-Medium',
-    marginBottom: 4,
+    marginBottom: 8,
+    letterSpacing: 0.2,
   },
   infoText: {
     fontSize: 16,
-    color: '#fff',
     fontFamily: 'Poppins-Regular',
+    lineHeight: 24,
   },
   editInput: {
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
-    padding: 8,
-    borderRadius: 6,
+    padding: 12,
+    borderRadius: 8,
     marginTop: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   buttonContainer: {
     width: '100%',
     marginTop: 20,
   },
-  button: {
-    height: 50,
-    borderRadius: 8,
+  primaryButton: {
+    height: 56,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  buttonText: {
-    color: '#ffffff',
+  primaryButtonText: {
     fontSize: 16,
     fontWeight: '600',
     fontFamily: 'Poppins-Medium',
+    letterSpacing: 0.3,
+  },
+  secondaryButton: {
+    height: 56,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
+  },
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    letterSpacing: 0.3,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   modalContainer: {
     flex: 1,
@@ -283,7 +333,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: COLORS.gray[200],
   },
   modalTitle: {
     fontSize: 20,
@@ -309,11 +359,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
   },
   modalInput: {
-    height: 80,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    height: 100,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
     textAlignVertical: 'top',
@@ -322,27 +372,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
+    borderTopColor: COLORS.gray[200],
   },
   modalButton: {
-    height: 50,
-    borderRadius: 8,
+    height: 56,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  editButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  bio: {
-    fontSize: 16,
-    marginBottom: 18,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  infoContainer: {
-    width: '100%',
-    marginBottom: 18,
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
 });

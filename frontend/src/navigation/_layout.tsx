@@ -11,6 +11,7 @@ import ChatScreen from '../screens/chat';
 import ProfileScreen from '../screens/profile';
 import LoginScreen from '../screens/login';
 import CreateProfileScreen from '../screens/create-profile';
+import SplashScreen from '../components/SplashScreen';
 import { Home } from '../lib/icons/Home';
 import { Calendar } from '../lib/icons/Calendar';
 import { MessageCircle } from '../lib/icons/MessageCircle';
@@ -22,6 +23,7 @@ import { X } from '../lib/icons/X';
 import { Menu as MenuIcon } from '../lib/icons/Menu';
 import { Pressable, ScrollView, Dimensions } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { NAV_THEME, COLORS } from '../lib/constants';
 
 const Tab = createBottomTabNavigator();
 
@@ -103,7 +105,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       <View style={{ position: 'absolute', width: '100%', left: 0, right: 0, bottom: 112, alignItems: 'center', zIndex: 10 }} pointerEvents="none">
         <Animated.View
           style={{
-            backgroundColor: '#18181b',
+            backgroundColor: COLORS.gray[800],
             borderRadius: 16,
             paddingHorizontal: 18,
             paddingVertical: 6,
@@ -115,7 +117,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         >
           <Text
             style={{
-              color: '#fff',
+              color: COLORS.white,
               fontSize: 14,
               fontWeight: '500',
               letterSpacing: 0.5,
@@ -130,8 +132,8 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         style={[
           styles.tabBar,
           {
-            backgroundColor: isDarkColorScheme ? '#18181b' : '#fff',
-            shadowColor: '#000',
+            backgroundColor: isDarkColorScheme ? COLORS.gray[800] : COLORS.white,
+            shadowColor: COLORS.shadow.light,
             transform: [{ scaleX: barScale }],
             opacity: barOpacity,
           },
@@ -153,11 +155,11 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           };
           const color = focused
             ? isDarkColorScheme
-              ? '#fff'
-              : '#18181b'
+              ? COLORS.white
+              : COLORS.gray[800]
             : isDarkColorScheme
-            ? '#a1a1aa'
-            : '#71717a';
+            ? COLORS.gray[400]
+            : COLORS.gray[500];
           return (
             <React.Fragment key={route.key}>
               <TouchableOpacity
@@ -209,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 8,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
   },
   tabItem: {
     flex: 1,
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 32,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: COLORS.gray[200],
     alignSelf: 'center',
     marginHorizontal: 4,
   },
@@ -352,14 +354,14 @@ function AuthenticatedApp() {
                     <Pressable
                       key={item}
                       style={{
-                        backgroundColor: item === 'Logout' ? '#dc2626' : '#000',
+                        backgroundColor: item === 'Logout' ? COLORS.error.light : COLORS.gray[800],
                         borderRadius: 32,
                         paddingVertical: 18,
                         paddingHorizontal: 28,
                         alignItems: 'flex-start',
                         justifyContent: 'center',
                         marginBottom: idx !== arr.length - 1 ? 16 : 0,
-                        shadowColor: '#000',
+                        shadowColor: COLORS.shadow.light,
                         shadowOpacity: 0.08,
                         shadowRadius: 8,
                         shadowOffset: { width: 0, height: 2 },
@@ -367,7 +369,7 @@ function AuthenticatedApp() {
                       onPress={() => handleMenuAction(item)}
                     >
                       <ReanimatedAnimated.View entering={FadeIn.duration(350)}>
-                        <Text style={{ fontSize: 18, color: '#fff', fontWeight: '600', letterSpacing: 0.2 }}>{item}</Text>
+                        <Text style={{ fontSize: 18, color: COLORS.white, fontWeight: '600', letterSpacing: 0.2 }}>{item}</Text>
                       </ReanimatedAnimated.View>
                     </Pressable>
                   ))}
@@ -398,11 +400,21 @@ function AuthenticatedApp() {
 
 function AppContent() {
   const { user, profile, loading } = useAuth();
+  const { colorScheme } = useColorScheme();
+  const theme = NAV_THEME[colorScheme];
+  const [showSplash, setShowSplash] = React.useState(true);
 
-  if (loading) {
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
+  if (loading || showSplash) {
+    if (showSplash) {
+      return <SplashScreen onAnimationComplete={handleSplashComplete} />;
+    }
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
-        <Text style={{ color: '#fff', fontSize: 18 }}>Loading...</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.loadingBackground }}>
+        <Text style={{ color: theme.loadingText, fontSize: 18 }}>Loading...</Text>
       </View>
     );
   }

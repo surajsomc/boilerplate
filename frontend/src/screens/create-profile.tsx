@@ -9,11 +9,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { useColorScheme } from '../lib/useColorScheme';
-import { NAV_THEME } from '../lib/constants';
+import { NAV_THEME, COLORS } from '../lib/constants';
 import { useAuth } from '../contexts/AuthContext';
 import { Profile } from '../services/api';
+
+const { width } = Dimensions.get('window');
 
 export default function CreateProfileScreen() {
   const [profileData, setProfileData] = useState<Partial<Profile>>({
@@ -96,141 +99,162 @@ export default function CreateProfileScreen() {
       style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
-          <Text style={[styles.title, { color: theme.text }]}>
-            Create Your Profile
-          </Text>
-          
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Tell us a bit about yourself to get started
-          </Text>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>First Name *</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.card,
-                color: theme.text,
-                borderColor: theme.border
-              }]}
-              value={profileData.firstName}
-              onChangeText={(text) => updateField('firstName', text)}
-              placeholder="Enter your first name"
-              placeholderTextColor={theme.textSecondary}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Last Name *</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.card,
-                color: theme.text,
-                borderColor: theme.border
-              }]}
-              value={profileData.lastName}
-              onChangeText={(text) => updateField('lastName', text)}
-              placeholder="Enter your last name"
-              placeholderTextColor={theme.textSecondary}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Bio</Text>
-            <TextInput
-              style={[styles.textArea, { 
-                backgroundColor: theme.card,
-                color: theme.text,
-                borderColor: theme.border
-              }]}
-              value={profileData.bio}
-              onChangeText={(text) => updateField('bio', text)}
-              placeholder="Tell us about yourself..."
-              placeholderTextColor={theme.textSecondary}
-              multiline
-              numberOfLines={3}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Location</Text>
-            <TextInput
-              style={[styles.input, { 
-                backgroundColor: theme.card,
-                color: theme.text,
-                borderColor: theme.border
-              }]}
-              value={profileData.location}
-              onChangeText={(text) => updateField('location', text)}
-              placeholder="Where are you located?"
-              placeholderTextColor={theme.textSecondary}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Interests</Text>
-            <TextInput
-              style={[styles.textArea, { 
-                backgroundColor: theme.card,
-                color: theme.text,
-                borderColor: theme.border
-              }]}
-              value={profileData.interests}
-              onChangeText={(text) => updateField('interests', text)}
-              placeholder="What are your interests?"
-              placeholderTextColor={theme.textSecondary}
-              multiline
-              numberOfLines={2}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Skills</Text>
-            <TextInput
-              style={[styles.textArea, { 
-                backgroundColor: theme.card,
-                color: theme.text,
-                borderColor: theme.border
-              }]}
-              value={profileData.skills}
-              onChangeText={(text) => updateField('skills', text)}
-              placeholder="What are your skills?"
-              placeholderTextColor={theme.textSecondary}
-              multiline
-              numberOfLines={2}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.primary }]}
-            onPress={handleCreateProfile}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? 'Creating Profile...' : 'Create Profile'}
+          {/* Header Section */}
+          <View style={styles.headerSection}>
+            <Text style={[styles.title, { color: theme.text }]}>
+              Create Your Profile
             </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.skipButton}
-            onPress={handleSkip}
-            disabled={loading}
-          >
-            <Text style={[styles.skipText, { color: theme.textSecondary }]}>
-              Skip for now
+            
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+              Tell us a bit about yourself to personalize your experience
             </Text>
-          </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={handleLogout}
-            disabled={loading}
-          >
-            <Text style={[styles.logoutText, { color: theme.textSecondary }]}>
-              Logout
-            </Text>
-          </TouchableOpacity>
+          {/* Required Fields Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Basic Information</Text>
+            
+            <View style={styles.inputRow}>
+              <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
+                <Text style={[styles.label, { color: theme.textSecondary }]}>First Name *</Text>
+                <TextInput
+                  style={[styles.input, { 
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.border
+                  }]}
+                  value={profileData.firstName}
+                  onChangeText={(text) => updateField('firstName', text)}
+                  placeholder="Enter your first name"
+                  placeholderTextColor={theme.textSecondary}
+                />
+              </View>
+
+              <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
+                <Text style={[styles.label, { color: theme.textSecondary }]}>Last Name *</Text>
+                <TextInput
+                  style={[styles.input, { 
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.border
+                  }]}
+                  value={profileData.lastName}
+                  onChangeText={(text) => updateField('lastName', text)}
+                  placeholder="Enter your last name"
+                  placeholderTextColor={theme.textSecondary}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Bio</Text>
+              <TextInput
+                style={[styles.textArea, { 
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border
+                }]}
+                value={profileData.bio}
+                onChangeText={(text) => updateField('bio', text)}
+                placeholder="Tell us about yourself..."
+                placeholderTextColor={theme.textSecondary}
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Location</Text>
+              <TextInput
+                style={[styles.input, { 
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border
+                }]}
+                value={profileData.location}
+                onChangeText={(text) => updateField('location', text)}
+                placeholder="Where are you located?"
+                placeholderTextColor={theme.textSecondary}
+              />
+            </View>
+          </View>
+
+          {/* Optional Fields Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Additional Information</Text>
+            
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Interests</Text>
+              <TextInput
+                style={[styles.textArea, { 
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border
+                }]}
+                value={profileData.interests}
+                onChangeText={(text) => updateField('interests', text)}
+                placeholder="What are your interests?"
+                placeholderTextColor={theme.textSecondary}
+                multiline
+                numberOfLines={2}
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Skills</Text>
+              <TextInput
+                style={[styles.textArea, { 
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border
+                }]}
+                value={profileData.skills}
+                onChangeText={(text) => updateField('skills', text)}
+                placeholder="What are your skills?"
+                placeholderTextColor={theme.textSecondary}
+                multiline
+                numberOfLines={2}
+              />
+            </View>
+          </View>
+
+          {/* Action Buttons */}
+          <View style={styles.actionSection}>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: theme.primary }]}
+              onPress={handleCreateProfile}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.primaryButtonText, { color: theme.background }]}>
+                {loading ? 'Creating Profile...' : 'Create Profile'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={handleSkip}
+              disabled={loading}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.secondaryButtonText, { color: theme.textSecondary }]}>
+                Skip for now
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+              disabled={loading}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.logoutText, { color: theme.error }]}>
+                Logout
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -244,24 +268,46 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 100,
+    paddingTop: 80,
     paddingBottom: 50,
   },
   form: {
     width: '100%',
+    maxWidth: 500,
+    alignSelf: 'center',
+  },
+  headerSection: {
+    marginBottom: 40,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
     fontFamily: 'Poppins-Bold',
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 32,
     fontFamily: 'Poppins-Regular',
+    lineHeight: 24,
+    paddingHorizontal: 20,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 20,
+    fontFamily: 'Poppins-Medium',
+    letterSpacing: 0.2,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    marginBottom: 20,
   },
   inputContainer: {
     marginBottom: 20,
@@ -271,51 +317,69 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 8,
     fontFamily: 'Poppins-Medium',
+    letterSpacing: 0.2,
   },
   input: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
+    height: 56,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 20,
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   textArea: {
-    height: 80,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    height: 100,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
     textAlignVertical: 'top',
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  button: {
-    height: 50,
-    borderRadius: 8,
+  actionSection: {
+    marginTop: 20,
+  },
+  primaryButton: {
+    height: 56,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
     marginBottom: 16,
+    shadowColor: COLORS.shadow.light,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  buttonText: {
-    color: '#ffffff',
+  primaryButtonText: {
     fontSize: 16,
     fontWeight: '600',
     fontFamily: 'Poppins-Medium',
+    letterSpacing: 0.3,
   },
-  skipButton: {
+  secondaryButton: {
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 16,
+    marginBottom: 12,
   },
-  skipText: {
-    fontSize: 14,
+  secondaryButtonText: {
+    fontSize: 15,
     fontFamily: 'Poppins-Medium',
   },
   logoutButton: {
     alignItems: 'center',
-    paddingVertical: 8,
-    marginTop: 16,
+    paddingVertical: 12,
   },
   logoutText: {
     fontSize: 14,
