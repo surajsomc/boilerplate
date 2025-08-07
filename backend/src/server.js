@@ -23,7 +23,11 @@ app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:3000',
     'http://localhost:3002', // Test UI
-    'http://127.0.0.1:3002'  // Test UI alternative
+    'http://127.0.0.1:3002',  // Test UI alternative
+    'http://192.168.68.54:8081', // Expo development server
+    'http://192.168.68.54:3000', // Frontend development
+    'exp://192.168.68.54:8081', // Expo Go
+    '*' // Allow all origins for development (remove in production)
   ],
   credentials: true
 }));
@@ -85,10 +89,11 @@ async function startServer() {
     console.log('✅ Database initialization complete');
     
     // Start server
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
       console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
+      console.log(`🌐 Network access: http://192.168.68.54:${PORT}/api`);
       console.log(`📚 Available endpoints:`);
       console.log(`   - GET  /api (API info)`);
       console.log(`   - POST /api/auth/register (Register user)`);

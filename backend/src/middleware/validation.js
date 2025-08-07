@@ -44,34 +44,43 @@ const authSchemas = {
 
 const profileSchemas = {
   create: Joi.object({
-    name: Joi.string().max(100).optional(),
-    bio: Joi.string().max(500).optional(),
-    location: Joi.string().max(100).optional(),
-    interests: Joi.string().max(500).optional(),
-    skills: Joi.string().max(500).optional(),
-    experience: Joi.string().max(1000).optional(),
-    education: Joi.string().max(500).optional(),
-    social_links: Joi.string().max(500).optional(),
-    projects: Joi.string().max(1000).optional()
+    firstName: Joi.string().max(50).allow('', null).optional(),
+    lastName: Joi.string().max(50).allow('', null).optional(),
+    bio: Joi.string().max(500).allow('', null).optional(),
+    location: Joi.string().max(100).allow('', null).optional(),
+    interests: Joi.string().max(500).allow('', null).optional(),
+    skills: Joi.string().max(500).allow('', null).optional(),
+    experience: Joi.string().max(1000).allow('', null).optional(),
+    education: Joi.string().max(500).allow('', null).optional(),
+    social: Joi.string().max(500).allow('', null).optional(),
+    projects: Joi.string().max(1000).allow('', null).optional()
   }),
 
   update: Joi.object({
-    name: Joi.string().max(100).optional(),
-    bio: Joi.string().max(500).optional(),
-    location: Joi.string().max(100).optional(),
-    interests: Joi.string().max(500).optional(),
-    skills: Joi.string().max(500).optional(),
-    experience: Joi.string().max(1000).optional(),
-    education: Joi.string().max(500).optional(),
-    social_links: Joi.string().max(500).optional(),
-    projects: Joi.string().max(1000).optional()
+    firstName: Joi.string().max(50).allow('', null).optional(),
+    lastName: Joi.string().max(50).allow('', null).optional(),
+    bio: Joi.string().max(500).allow('', null).optional(),
+    location: Joi.string().max(100).allow('', null).optional(),
+    interests: Joi.string().max(500).allow('', null).optional(),
+    skills: Joi.string().max(500).allow('', null).optional(),
+    experience: Joi.string().max(1000).allow('', null).optional(),
+    education: Joi.string().max(500).allow('', null).optional(),
+    social: Joi.string().max(500).allow('', null).optional(),
+    projects: Joi.string().max(1000).allow('', null).optional()
   })
 };
 
 // Validation middleware factory
 const validate = (schema, property = 'body') => {
   return (req, res, next) => {
-    const { error, value } = schema.validate(req[property], {
+    // Convert empty strings to null for optional fields
+    const sanitizedData = {};
+    Object.keys(req[property]).forEach(key => {
+      const value = req[property][key];
+      sanitizedData[key] = value === '' ? null : value;
+    });
+
+    const { error, value } = schema.validate(sanitizedData, {
       abortEarly: false,
       stripUnknown: true
     });

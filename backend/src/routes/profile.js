@@ -25,7 +25,7 @@ router.post('/', authenticateToken, validate(profileSchemas.create), async (req,
       });
     }
 
-    // Create profile
+    // Create profile with frontend field names
     const profileId = uuidv4();
     await runQuery(
       `INSERT INTO profiles (
@@ -33,9 +33,17 @@ router.post('/', authenticateToken, validate(profileSchemas.create), async (req,
         experience, education, social_links, projects
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        profileId, userId, profileData.name, profileData.bio, profileData.location,
-        profileData.interests, profileData.skills, profileData.experience,
-        profileData.education, profileData.social_links, profileData.projects
+        profileId, 
+        userId, 
+        `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim(), // Combine first and last name
+        profileData.bio || null,
+        profileData.location || null,
+        profileData.interests || null,
+        profileData.skills || null,
+        profileData.experience || null,
+        profileData.education || null,
+        profileData.social || null, // Map social to social_links
+        profileData.projects || null
       ]
     );
 
@@ -45,9 +53,28 @@ router.post('/', authenticateToken, validate(profileSchemas.create), async (req,
       [profileId]
     );
 
+    // Transform to match frontend expectations
+    const transformedProfile = {
+      id: profile.id,
+      userId: profile.user_id,
+      firstName: profile.name ? profile.name.split(' ')[0] : null,
+      lastName: profile.name ? profile.name.split(' ').slice(1).join(' ') : null,
+      bio: profile.bio,
+      location: profile.location,
+      interests: profile.interests,
+      skills: profile.skills,
+      experience: profile.experience,
+      education: profile.education,
+      social: profile.social_links,
+      projects: profile.projects,
+      profilePicture: profile.profile_picture,
+      createdAt: profile.created_at,
+      updatedAt: profile.updated_at
+    };
+
     res.status(201).json({
       message: 'Profile created successfully',
-      profile
+      profile: transformedProfile
     });
   } catch (error) {
     next(error);
@@ -71,8 +98,27 @@ router.get('/me', authenticateToken, async (req, res, next) => {
       });
     }
 
+    // Transform to match frontend expectations
+    const transformedProfile = {
+      id: profile.id,
+      userId: profile.user_id,
+      firstName: profile.name ? profile.name.split(' ')[0] : null,
+      lastName: profile.name ? profile.name.split(' ').slice(1).join(' ') : null,
+      bio: profile.bio,
+      location: profile.location,
+      interests: profile.interests,
+      skills: profile.skills,
+      experience: profile.experience,
+      education: profile.education,
+      social: profile.social_links,
+      projects: profile.projects,
+      profilePicture: profile.profile_picture,
+      createdAt: profile.created_at,
+      updatedAt: profile.updated_at
+    };
+
     res.json({
-      profile
+      profile: transformedProfile
     });
   } catch (error) {
     next(error);
@@ -162,7 +208,7 @@ router.put('/me', authenticateToken, validate(profileSchemas.update), async (req
       });
     }
 
-    // Update profile
+    // Update profile with frontend field names
     await runQuery(
       `UPDATE profiles SET 
         name = COALESCE(?, name),
@@ -177,9 +223,15 @@ router.put('/me', authenticateToken, validate(profileSchemas.update), async (req
         updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ?`,
       [
-        profileData.name, profileData.bio, profileData.location,
-        profileData.interests, profileData.skills, profileData.experience,
-        profileData.education, profileData.social_links, profileData.projects,
+        `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim(), // Combine first and last name
+        profileData.bio || null,
+        profileData.location || null,
+        profileData.interests || null,
+        profileData.skills || null,
+        profileData.experience || null,
+        profileData.education || null,
+        profileData.social || null, // Map social to social_links
+        profileData.projects || null,
         userId
       ]
     );
@@ -190,9 +242,28 @@ router.put('/me', authenticateToken, validate(profileSchemas.update), async (req
       [userId]
     );
 
+    // Transform to match frontend expectations
+    const transformedProfile = {
+      id: profile.id,
+      userId: profile.user_id,
+      firstName: profile.name ? profile.name.split(' ')[0] : null,
+      lastName: profile.name ? profile.name.split(' ').slice(1).join(' ') : null,
+      bio: profile.bio,
+      location: profile.location,
+      interests: profile.interests,
+      skills: profile.skills,
+      experience: profile.experience,
+      education: profile.education,
+      social: profile.social_links,
+      projects: profile.projects,
+      profilePicture: profile.profile_picture,
+      createdAt: profile.created_at,
+      updatedAt: profile.updated_at
+    };
+
     res.json({
       message: 'Profile updated successfully',
-      profile
+      profile: transformedProfile
     });
   } catch (error) {
     next(error);

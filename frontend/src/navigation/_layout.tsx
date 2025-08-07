@@ -2,13 +2,15 @@ import * as React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useColorScheme } from '../lib/useColorScheme';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, Alert } from 'react-native';
 import { Animated } from 'react-native';
 import { default as ReanimatedAnimated, FadeIn } from 'react-native-reanimated';
 import HomeScreen from '../screens/home';
 import CalendarScreen from '../screens/calendar';
 import ChatScreen from '../screens/chat';
 import ProfileScreen from '../screens/profile';
+import LoginScreen from '../screens/login';
+import CreateProfileScreen from '../screens/create-profile';
 import { Home } from '../lib/icons/Home';
 import { Calendar } from '../lib/icons/Calendar';
 import { MessageCircle } from '../lib/icons/MessageCircle';
@@ -19,6 +21,7 @@ import { BlurView } from 'expo-blur';
 import { X } from '../lib/icons/X';
 import { Menu as MenuIcon } from '../lib/icons/Menu';
 import { Pressable, ScrollView, Dimensions } from 'react-native';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -223,10 +226,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function AppNavigator() {
+function AuthenticatedApp() {
   const { isDarkColorScheme } = useColorScheme();
+  const { logout } = useAuth();
   const [currentPage, setCurrentPage] = React.useState('Home');
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const navigationRef = React.useRef<any>(null);
 
   // Helper to get the current page name from navigation state
   function getCurrentPageName(state: any) {
@@ -235,10 +240,64 @@ export default function AppNavigator() {
     return TAB_LABELS[route.name] || route.name;
   }
 
+  const handleMenuAction = (item: string) => {
+    setMenuOpen(false);
+    
+    switch (item) {
+      case 'Logout':
+        Alert.alert(
+          'Logout',
+          'Are you sure you want to logout?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Logout', 
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await logout();
+                } catch (error) {
+                  console.error('Logout error:', error);
+                }
+              }
+            }
+          ]
+        );
+        break;
+      case 'Profile':
+        // Navigate to profile tab
+        if (navigationRef.current) {
+          navigationRef.current.navigate('Profile');
+        }
+        break;
+      case 'Settings':
+        // Navigate to settings
+        break;
+      case 'Notifications':
+        // Navigate to notifications
+        break;
+      case 'Help & Support':
+        // Navigate to help
+        break;
+      case 'Invite Friends':
+        // Navigate to invite friends
+        break;
+      case 'About':
+        // Navigate to about
+        break;
+      case 'Feedback':
+        // Navigate to feedback
+        break;
+      default:
+        break;
+    }
+  };
+
   const blurTint = isDarkColorScheme ? 'dark' : 'light';
 
   return (
     <NavigationContainer
+      ref={navigationRef}
       theme={isDarkColorScheme ? DarkTheme : DefaultTheme}
       onStateChange={(state: any) => {
         setCurrentPage(getCurrentPageName(state));
@@ -293,7 +352,7 @@ export default function AppNavigator() {
                     <Pressable
                       key={item}
                       style={{
-                        backgroundColor: '#000',
+                        backgroundColor: item === 'Logout' ? '#dc2626' : '#000',
                         borderRadius: 32,
                         paddingVertical: 18,
                         paddingHorizontal: 28,
@@ -305,7 +364,7 @@ export default function AppNavigator() {
                         shadowRadius: 8,
                         shadowOffset: { width: 0, height: 2 },
                       }}
-                      onPress={() => setMenuOpen(false)}
+                      onPress={() => handleMenuAction(item)}
                     >
                       <ReanimatedAnimated.View entering={FadeIn.duration(350)}>
                         <Text style={{ fontSize: 18, color: '#fff', fontWeight: '600', letterSpacing: 0.2 }}>{item}</Text>
@@ -334,5 +393,36 @@ export default function AppNavigator() {
         </Tab.Navigator>
       </View>
     </NavigationContainer>
+  );
+}
+
+function AppContent() {
+  const { user, profile, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+        <Text style={{ color: '#fff', fontSize: 18 }}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
+  }
+
+  // If user is authenticated but doesn't have a profile, show create profile screen
+  if (!profile) {
+    return <CreateProfileScreen />;
+  }
+
+  return <AuthenticatedApp />;
+}
+
+export default function AppNavigator() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
